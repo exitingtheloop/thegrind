@@ -1,4 +1,4 @@
-name: Build and deploy .NET Azure Function App
+name: Build and deploy dotnet core project to Azure Function App - thegrind
 
 on:
   push:
@@ -18,22 +18,22 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout
+      - name: 'Checkout GitHub Action'
         uses: actions/checkout@v4
 
-      - name: Setup .NET ${{ env.DOTNET_VERSION }}
+      - name: Setup DotNet ${{ env.DOTNET_VERSION }} Environment
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: ${{ env.DOTNET_VERSION }}
 
-      - name: Restore and Build
+      - name: 'Publish Project'
         shell: bash
         run: |
           pushd './${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}'
-          dotnet build --configuration Release --output ./output
+          dotnet publish --configuration Release --output ./output
           popd
 
-      - name: Deploy to Azure Functions
+      - name: 'Run Azure Functions Action'
         uses: Azure/functions-action@v1
         id: fa
         with:
