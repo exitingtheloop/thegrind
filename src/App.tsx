@@ -430,12 +430,16 @@ function GameScreen() {
   const [liveScores, setLiveScores] = useState<LeaderboardEntry[]>([]);
   const [leader, setLeader] = useState<string | null>(null);
   const [leaderAlert, setLeaderAlert] = useState<string | null>(null);
+  const [playerRank, setPlayerRank] = useState<number | null>(null);
 
-  // Poll leaderboard every 10s while running
+  // Poll leaderboard every 5s while running
   useEffect(() => {
     const poll = () => {
-      fetchTopScores(5).then((scores) => {
-        setLiveScores(scores);
+      fetchTopScores(50).then((scores) => {
+        setLiveScores(scores.slice(0, 5));
+        // Find player rank
+        const idx = scores.findIndex((s) => s.name.toLowerCase() === playerName.toLowerCase());
+        setPlayerRank(idx >= 0 ? idx + 1 : null);
         if (scores.length > 0) {
           const newLeader = scores[0].name;
           setLeader((prev) => {
@@ -484,19 +488,14 @@ function GameScreen() {
       {/* ── Top Bar: Timer + Currencies */}
       <div className="top-bar">
         <div className="timer">{fmtTime(timeLeft)}</div>
-        <button className="lb-btn" onClick={() => setShowLB(true)} title="Leaderboard">
-          🏆
-        </button>
-        <div className="currencies">
-          <div className="currency">
-            <span className="cur-label">⚡ MOMENTUM</span>
-            <span className="cur-value">{fmt(momentum)}</span>
-            <span className="cur-rate">{fmt(momentumPerSec)}/s · ×{tapMultiplier.toFixed(1)} tap</span>
-          </div>
-          <div className="currency ath-currency">
-            <span className="cur-label">🏆 ATH SCORE</span>
-            <span className="cur-value">{fmt(athScore)}</span>
-          </div>
+        <div className="currency currency-center">
+          <span className="cur-label">⚡ MOMENTUM</span>
+          <span className="cur-value">{fmt(momentum)}</span>
+          <span className="cur-rate">{fmt(momentumPerSec)}/s · ×{tapMultiplier.toFixed(1)} tap</span>
+        </div>
+        <div className="currency ath-currency">
+          <span className="cur-label">🏆 ATH SCORE</span>
+          <span className="cur-value">{fmt(athScore)}</span>
         </div>
       </div>
 
@@ -522,6 +521,21 @@ function GameScreen() {
           <span className="tap-emoji">💪</span>
           <span className="tap-label">TAP!</span>
         </div>
+        <button className="lb-btn" onClick={(e) => { e.stopPropagation(); setShowLB(true); }} title="Leaderboard">
+          🏆
+        </button>
+      </div>
+
+      {/* ── Player rank strip */}
+      <div className="player-strip">
+        <span className="player-strip-name">{playerName}</span>
+        {playerRank !== null && playerRank <= 5 ? (
+          <span className="player-strip-rank top5">🏆 #{playerRank}</span>
+        ) : playerRank !== null ? (
+          <span className="player-strip-rank">#{playerRank}</span>
+        ) : (
+          <span className="player-strip-rank">—</span>
+        )}
       </div>
 
       {/* ── Tab switcher */}

@@ -293,8 +293,9 @@ body {
 .top-bar {
   display: flex;
   align-items: center;
+  justify-content: space-between;
   padding: 0.4rem 0.75rem;
-  gap: 0.75rem;
+  gap: 0.5rem;
   background: #1a1a2e;
   border-bottom: 1px solid #2a2a3e;
   flex-shrink: 0;
@@ -313,6 +314,11 @@ body {
   gap: 1rem;
   flex: 1;
   justify-content: center;
+}
+
+.currency-center {
+  flex: 1;
+  text-align: center;
 }
 
 .currency {
@@ -374,6 +380,7 @@ body {
 /* ── Tap arena ─────────────────────────────────────────────── */
 
 .tap-arena {
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -422,6 +429,35 @@ body {
   border: 1px solid rgba(249, 212, 35, 0.2);
   border-radius: 8px;
   padding: 0.25rem 0.5rem;
+}
+
+/* ── Player rank strip ────────────────────────────────────── */
+
+.player-strip {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.35rem 0.75rem;
+  background: #12122a;
+  border-top: 1px solid #2a2a3e;
+  flex-shrink: 0;
+}
+
+.player-strip-name {
+  font-weight: 700;
+  font-size: 0.9rem;
+  color: #e0e0e0;
+}
+
+.player-strip-rank {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #888;
+}
+
+.player-strip-rank.top5 {
+  color: #f9d423;
 }
 
 /* ── Tab bar ──────────────────────────────────────────────── */
@@ -874,13 +910,20 @@ body {
 /* ─── Leaderboard button (in-game top bar) ──────────────────── */
 
 .lb-btn {
-  background: none;
+  position: absolute;
+  right: 0.75rem;
+  top: 50%;
+  transform: translateY(-50%);
+  background: rgba(26, 26, 46, 0.7);
   border: 2px solid rgba(249, 212, 35, 0.3);
-  border-radius: 10px;
-  font-size: 1.2rem;
+  border-radius: 50%;
+  font-size: 1.4rem;
   cursor: pointer;
-  padding: 0.2rem 0.5rem;
-  flex-shrink: 0;
+  width: 3rem;
+  height: 3rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   transition: border-color 0.15s, background 0.15s;
 }
 
