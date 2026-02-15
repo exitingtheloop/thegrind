@@ -75,24 +75,29 @@ function loadOffline(limit: number): LeaderboardEntry[] {
  * Falls back to localStorage if the network call fails.
  */
 export async function submitScore(name: string, score: number): Promise<void> {
+  const payload = {
+    name,
+    score,
+    weddingCode: WEDDING_CODE,
+    deviceId: getDeviceId(),
+  };
+  console.log('[Leaderboard] Submitting score:', JSON.stringify(payload));
+  console.log('[Leaderboard] API_BASE:', API_BASE);
+
   try {
     const res = await fetch(`${API_BASE}/scores`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        name,
-        score,
-        weddingCode: WEDDING_CODE,
-        deviceId: getDeviceId(),
-      }),
+      body: JSON.stringify(payload),
     });
+    const responseBody = await res.text();
+    console.log('[Leaderboard] Submit response:', res.status, responseBody);
     if (!res.ok) {
-      const err = await res.json().catch(() => ({}));
-      console.error('Submit failed:', res.status, err);
+      console.error('Submit failed:', res.status, responseBody);
     }
   } catch (e) {
     saveOffline(name, score);
-    console.warn('Offline — score saved locally', e);
+    console.warn('[Leaderboard] Offline — score saved locally', e);
   }
 }
 
