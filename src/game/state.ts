@@ -22,7 +22,9 @@ import { submitScore, fetchTopScores, type LeaderboardEntry } from '../services/
 
 const SAVE_KEY = 'thegrind_run_state';
 const SAVE_INTERVAL_MS = 2000; // save every 2s
+const SUBMIT_INTERVAL_MS = 5000; // submit score every 5s for live leaderboard
 let lastSaveAt = 0;
+let lastSubmitAt = 0;
 
 interface SavedState {
   momentum: number;
@@ -430,6 +432,12 @@ export const useGameStore = create<GameState>((set, get) => ({
 
     // Persist run state periodically
     saveRunState(get());
+
+    // Submit ATH score periodically for live leaderboard
+    if (now - lastSubmitAt >= SUBMIT_INTERVAL_MS && newAth > 0) {
+      lastSubmitAt = now;
+      submitScore(s.playerName, Math.floor(newAth)).catch(() => {});
+    }
   },
 
   // ────────────────────────────────────────────── refreshLeaderboard
