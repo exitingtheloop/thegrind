@@ -46,16 +46,6 @@ public class SubmitScore
             return bad;
         }
 
-        // ── Wedding code gate ───────────────────────────────────
-        var expectedCode = Environment.GetEnvironmentVariable("WEDDING_CODE");
-        if (!string.IsNullOrEmpty(expectedCode)
-            && !string.Equals(body.WeddingCode?.Trim(), expectedCode.Trim(),
-                              StringComparison.OrdinalIgnoreCase))
-        {
-            var forbidden = req.CreateResponse(HttpStatusCode.Forbidden);
-            await forbidden.WriteAsJsonAsync(new { error = "Invalid wedding code" });
-            return forbidden;
-        }
 
         // ── Best-score-per-device: check existing ───────────────
         var trimmedName = body.Name.Trim();

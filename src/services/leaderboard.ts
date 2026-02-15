@@ -2,7 +2,7 @@
 // Calls Azure Functions API. Falls back to localStorage when offline.
 
 const API_BASE = import.meta.env.VITE_API_URL as string || '/api';
-const WEDDING_CODE = (import.meta.env.VITE_WEDDING_CODE as string) || '';
+
 
 // ─── Persistent device ID ──────────────────────────────────────
 // Stored in localStorage so the backend can tie submissions to a device.
@@ -78,7 +78,6 @@ export async function submitScore(name: string, score: number): Promise<void> {
   const payload = {
     name,
     score,
-    weddingCode: WEDDING_CODE,
     deviceId: getDeviceId(),
   };
   console.log('[Leaderboard] Submitting score:', JSON.stringify(payload));

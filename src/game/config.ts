@@ -3,11 +3,11 @@
 
 export const WEDDING_MODE = true;
 
-/** Short run for development testing (30s instead of 8 min). */
-const DEBUG_SHORT_RUN = import.meta.env.DEV;
+/** Short run for testing (20s instead of 8 min). */
+const DEBUG_SHORT_RUN = true;
 
 /** Run duration in milliseconds. */
-export const RUN_DURATION_MS = DEBUG_SHORT_RUN ? 30 * 1000 : 8 * 60 * 1000;
+export const RUN_DURATION_MS = DEBUG_SHORT_RUN ? 20 * 1000 : 8 * 60 * 1000;
 
 /** Generator cost scaling factor per unit owned. */
 export const COST_SCALE = 1.15;

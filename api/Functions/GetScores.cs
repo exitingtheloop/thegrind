@@ -20,19 +20,19 @@ public class GetScores
         var query = HttpUtility.ParseQueryString(req.Url.Query);
         var limit = int.TryParse(query["limit"], out var l) ? Math.Clamp(l, 1, 50) : 5;
 
-        var all = new List<ScoreResponse>();
+        var all = new List<object>();
 
         await foreach (var entity in _table.QueryAsync<ScoreEntity>(
             filter: "PartitionKey eq 'wedding'"))
         {
-            all.Add(new ScoreResponse(entity.PlayerName, entity.Score, entity.Timestamp));
+            all.Add(new { name = entity.PlayerName, score = entity.Score, createdAt = entity.Timestamp });
         }
 
         // Best score per name, top N
         var top = all
-            .GroupBy(s => s.Name.Trim().ToLowerInvariant())
-            .Select(g => g.OrderByDescending(s => s.Score).First())
-            .OrderByDescending(s => s.Score)
+            .GroupBy(s => ((dynamic)s).name.ToString().Trim().ToLowerInvariant())
+            .Select(g => g.OrderByDescending(s => (double)((dynamic)s).score).First())
+            .OrderByDescending(s => (double)((dynamic)s).score)
             .Take(limit)
             .ToList();
 

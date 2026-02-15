@@ -55,7 +55,7 @@ describe('submitScore (offline fallback)', () => {
     expect(top[2].name).toBe('A');
   });
 
-  it('sends deviceId and weddingCode in fetch body', async () => {
+  it('sends deviceId in fetch body', async () => {
     // Even though fetch rejects, verify it was called with correct shape
     await submitScore('Test', 42);
     expect(mockFetch).toHaveBeenCalledOnce();

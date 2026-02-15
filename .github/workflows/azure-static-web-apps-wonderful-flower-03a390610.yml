@@ -34,7 +34,6 @@ jobs:
           ###### End of Repository/Build Configurations ######
         env:
           VITE_API_URL: "https://thegrind.azurewebsites.net/api"
-          VITE_WEDDING_CODE: ${{ secrets.WEDDING_CODE }}
 
   close_pull_request_job:
     if: github.event_name == 'pull_request' && github.event.action == 'closed'
