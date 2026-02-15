@@ -15,7 +15,7 @@ public class AdminScores
 
     [Function("AdminScores")]
     public async Task<HttpResponseData> Run(
-        [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "admin/scores")] HttpRequestData req)
+        [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "admin-scores")] HttpRequestData req)
     {
         // Simple secret key check
         var query = HttpUtility.ParseQueryString(req.Url.Query);

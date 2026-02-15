@@ -22,7 +22,7 @@ public class AdminReset
     /// </summary>
     [Function("AdminReset")]
     public async Task<HttpResponseData> Run(
-        [HttpTrigger(AuthorizationLevel.Anonymous, "delete", Route = "admin/scores")] HttpRequestData req)
+        [HttpTrigger(AuthorizationLevel.Anonymous, "delete", Route = "admin-reset")] HttpRequestData req)
     {
         var query = HttpUtility.ParseQueryString(req.Url.Query);
         var key = query["key"];

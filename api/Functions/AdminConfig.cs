@@ -21,7 +21,7 @@ public class AdminConfig
     /// </summary>
     [Function("AdminSetConfig")]
     public async Task<HttpResponseData> SetDeadline(
-        [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "admin/config")] HttpRequestData req)
+        [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "admin-config")] HttpRequestData req)
     {
         // ── Auth
         var query = HttpUtility.ParseQueryString(req.Url.Query);
