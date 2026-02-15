@@ -7,6 +7,7 @@ import type { LeaderboardEntry } from './services/leaderboard';
 import {
   fetchConfig,
   fetchMe,
+  fetchTopScores,
   getLockedName,
   setLockedName,
   getDeviceId,
@@ -125,6 +126,9 @@ function StartScreen() {
   useEffect(() => {
     refreshLeaderboard();
 
+    // Poll leaderboard every 5s so players see others finish
+    const pollId = setInterval(() => refreshLeaderboard(), 5_000);
+
     // Check locked name
     const locked = getLockedName();
     if (locked) {
@@ -179,6 +183,8 @@ function StartScreen() {
         }
       })
       .catch(() => {});
+
+    return () => clearInterval(pollId);
   }, [refreshLeaderboard]);
 
   // Countdown timer to deadline
@@ -397,6 +403,7 @@ function GameScreen() {
   const generators = useGameStore((s) => s.generators);
   const buffs = useGameStore((s) => s.buffs);
   const events = useGameStore((s) => s.events);
+  const playerName = useGameStore((s) => s.playerName);
   const tap = useGameStore((s) => s.tap);
   const buyGenerator = useGameStore((s) => s.buyGenerator);
   const activatePowerup = useGameStore((s) => s.activatePowerup);
@@ -418,6 +425,35 @@ function GameScreen() {
     setTimeout(() => setTapFlash(false), 100);
   }, [tap]);
 
+  // ── Leaderboard modal + polling ──
+  const [showLB, setShowLB] = useState(false);
+  const [liveScores, setLiveScores] = useState<LeaderboardEntry[]>([]);
+  const [leader, setLeader] = useState<string | null>(null);
+  const [leaderAlert, setLeaderAlert] = useState<string | null>(null);
+
+  // Poll leaderboard every 10s while running
+  useEffect(() => {
+    const poll = () => {
+      fetchTopScores(5).then((scores) => {
+        setLiveScores(scores);
+        if (scores.length > 0) {
+          const newLeader = scores[0].name;
+          setLeader((prev) => {
+            if (prev !== null && prev !== newLeader && newLeader.toLowerCase() !== playerName.toLowerCase()) {
+              // Someone else took #1!
+              setLeaderAlert(`👑 ${newLeader} just took #1!`);
+              setTimeout(() => setLeaderAlert(null), 5000);
+            }
+            return newLeader;
+          });
+        }
+      }).catch(() => {});
+    };
+    poll(); // initial fetch
+    const id = setInterval(poll, 5_000);
+    return () => clearInterval(id);
+  }, [playerName]);
+
   const now = Date.now();
 
   // Active tab: upgrades vs powerups vs lore
@@ -425,9 +461,32 @@ function GameScreen() {
 
   return (
     <div className="game-screen">
+      {/* ── Leader takeover alert */}
+      {leaderAlert && (
+        <div className="leader-alert">
+          {leaderAlert}
+        </div>
+      )}
+
+      {/* ── Leaderboard modal */}
+      {showLB && (
+        <div className="overlay" onClick={() => setShowLB(false)}>
+          <div className="lb-modal" onClick={(e) => e.stopPropagation()}>
+            <h2>🏆 Live Leaderboard</h2>
+            <LeaderboardPanel entries={liveScores} title="" />
+            <button className="btn btn-secondary" onClick={() => setShowLB(false)}>
+              Close
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* ── Top Bar: Timer + Currencies */}
       <div className="top-bar">
         <div className="timer">{fmtTime(timeLeft)}</div>
+        <button className="lb-btn" onClick={() => setShowLB(true)} title="Leaderboard">
+          🏆
+        </button>
         <div className="currencies">
           <div className="currency">
             <span className="cur-label">⚡ MOMENTUM</span>
@@ -441,7 +500,7 @@ function GameScreen() {
         </div>
       </div>
 
-      {/* ── Event ticker */}
+      {/* ── Event ticker + leader position */}
       {events.filter((e) => now < e.endsAt).length > 0 && (
         <div className="event-ticker">
           {events
