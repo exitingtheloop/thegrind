@@ -626,7 +626,7 @@ function AdminPage() {
 
   const fetchScores = async () => {
     try {
-      const res = await fetch(`${API_BASE}/admin?key=${encodeURIComponent(adminKey)}`);
+      const res = await fetch(`${API_BASE}/manage?key=${encodeURIComponent(adminKey)}`);
       if (!res.ok) {
         setStatus('❌ Invalid admin key');
         return false;
@@ -711,7 +711,7 @@ function AdminPage() {
       const offsetMs = asUtcMs - pacAsUtcMs;
       const utcDate = new Date(asUtcMs + offsetMs);
 
-      const res = await fetch(`${API_BASE}/admin?key=${encodeURIComponent(adminKey)}`, {
+      const res = await fetch(`${API_BASE}/manage?key=${encodeURIComponent(adminKey)}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ deadlineUtc: utcDate.toISOString() }),
@@ -729,7 +729,7 @@ function AdminPage() {
     if (!confirm('⚠️ DELETE ALL SCORES? This cannot be undone!')) return;
     setStatus('Resetting...');
     try {
-      const res = await fetch(`${API_BASE}/admin?key=${encodeURIComponent(adminKey)}`, {
+      const res = await fetch(`${API_BASE}/manage?key=${encodeURIComponent(adminKey)}`, {
         method: 'DELETE',
       });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);

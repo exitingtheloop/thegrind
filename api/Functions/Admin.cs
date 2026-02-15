@@ -23,9 +23,9 @@ public class Admin
         _configTable = configWrapper.Table;
     }
 
-    [Function("Admin")]
+    [Function("GameAdmin")]
     public async Task<HttpResponseData> Run(
-        [HttpTrigger(AuthorizationLevel.Anonymous, "get", "post", "delete", Route = "admin")] HttpRequestData req)
+        [HttpTrigger(AuthorizationLevel.Anonymous, "get", "post", "delete", Route = "manage")] HttpRequestData req)
     {
         // ── Auth ────────────────────────────────────────────────
         var query = HttpUtility.ParseQueryString(req.Url.Query);
