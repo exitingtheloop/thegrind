@@ -1,6 +1,7 @@
 using Azure.Data.Tables;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using TheGrind.Api.Models;
 
 var host = new HostBuilder()
     .ConfigureFunctionsWorkerDefaults()
@@ -9,10 +10,15 @@ var host = new HostBuilder()
         var connStr = Environment.GetEnvironmentVariable("AzureWebJobsStorage")
                       ?? "UseDevelopmentStorage=true";
 
-        var tableClient = new TableClient(connStr, "scores");
-        tableClient.CreateIfNotExists();
+        // Scores table
+        var scoresTable = new TableClient(connStr, "scores");
+        scoresTable.CreateIfNotExists();
+        services.AddSingleton(scoresTable);
 
-        services.AddSingleton(tableClient);
+        // Config table (deadline etc.) — wrapped to avoid DI collision
+        var configTable = new TableClient(connStr, "config");
+        configTable.CreateIfNotExists();
+        services.AddSingleton(new ConfigTableClient(configTable));
     })
     .Build();
 

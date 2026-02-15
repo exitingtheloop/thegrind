@@ -142,7 +142,7 @@ export interface GameState {
   tutorialSeen: boolean;
 
   // ─ Actions
-  startRun: (playerName: string) => void;
+  startRun: (playerName: string, deadlineMs?: number) => void;
   tap: (now?: number) => void;
   buyGenerator: (id: string) => void;
   activatePowerup: (id: string) => void;
@@ -225,8 +225,10 @@ export const useGameStore = create<GameState>((set, get) => ({
   tutorialSeen: isTutorialSeen(),
 
   // ────────────────────────────────────────────── startRun
-  startRun: (playerName: string) => {
+  startRun: (playerName: string, deadlineMs?: number) => {
     const now = Date.now();
+    // If a global deadline is provided, use it; otherwise fall back to fixed duration
+    const endsAt = deadlineMs && deadlineMs > now ? deadlineMs : now + RUN_DURATION_MS;
     set({
       momentum: 0,
       athScore: 0,
@@ -235,7 +237,7 @@ export const useGameStore = create<GameState>((set, get) => ({
       events: [],
       nextEventAt: scheduleNextEvent(now),
       runStatus: 'running',
-      runEndsAt: now + RUN_DURATION_MS,
+      runEndsAt: endsAt,
       lastTick: now,
       playerName,
       submitted: false,

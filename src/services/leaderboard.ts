@@ -10,7 +10,7 @@ const API_BASE = import.meta.env.VITE_API_URL as string || '/api';
 
 const DEVICE_ID_KEY = 'thegrind_device_id';
 
-function getDeviceId(): string {
+export function getDeviceId(): string {
   let id = localStorage.getItem(DEVICE_ID_KEY);
   if (!id) {
     id =
@@ -28,6 +28,17 @@ export interface LeaderboardEntry {
   name: string;
   score: number;
   createdAt?: string;
+}
+
+export interface GameConfig {
+  serverTimeUtc: string;
+  deadlineUtc: string | null;
+}
+
+export interface MeResponse {
+  found: boolean;
+  name?: string;
+  score?: number;
 }
 
 // ─── Offline fallback helpers ──────────────────────────────────
@@ -68,7 +79,38 @@ function loadOffline(limit: number): LeaderboardEntry[] {
   }
 }
 
+// ─── Locked name helpers ───────────────────────────────────────
+
+const LOCKED_NAME_KEY = 'thegrind_locked_name';
+
+export function getLockedName(): string | null {
+  return localStorage.getItem(LOCKED_NAME_KEY);
+}
+
+export function setLockedName(name: string): void {
+  localStorage.setItem(LOCKED_NAME_KEY, name);
+}
+
 // ─── API calls ─────────────────────────────────────────────────
+
+/**
+ * Fetch event config (deadline + server time) from backend.
+ */
+export async function fetchConfig(): Promise<GameConfig> {
+  const res = await fetch(`${API_BASE}/config`);
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  return await res.json();
+}
+
+/**
+ * Check if this device already has a registered player.
+ */
+export async function fetchMe(): Promise<MeResponse> {
+  const deviceId = getDeviceId();
+  const res = await fetch(`${API_BASE}/me?deviceId=${encodeURIComponent(deviceId)}`);
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  return await res.json();
+}
 
 /**
  * Submit a score to the Azure Functions backend.
@@ -80,8 +122,6 @@ export async function submitScore(name: string, score: number): Promise<void> {
     score,
     deviceId: getDeviceId(),
   };
-  console.log('[Leaderboard] Submitting score:', JSON.stringify(payload));
-  console.log('[Leaderboard] API_BASE:', API_BASE);
 
   try {
     const res = await fetch(`${API_BASE}/scores`, {
@@ -89,10 +129,9 @@ export async function submitScore(name: string, score: number): Promise<void> {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload),
     });
-    const responseBody = await res.text();
-    console.log('[Leaderboard] Submit response:', res.status, responseBody);
     if (!res.ok) {
-      console.error('Submit failed:', res.status, responseBody);
+      const body = await res.text();
+      console.error('Submit failed:', res.status, body);
     }
   } catch (e) {
     saveOffline(name, score);

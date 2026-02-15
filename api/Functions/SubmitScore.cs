@@ -1,5 +1,6 @@
 using System.Net;
 using System.Text.Json;
+using Azure;
 using Azure.Data.Tables;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
@@ -10,8 +11,13 @@ namespace TheGrind.Api.Functions;
 public class SubmitScore
 {
     private readonly TableClient _table;
+    private readonly TableClient _configTable;
 
-    public SubmitScore(TableClient table) => _table = table;
+    public SubmitScore(TableClient table, ConfigTableClient configWrapper)
+    {
+        _table = table;
+        _configTable = configWrapper.Table;
+    }
 
     [Function("SubmitScore")]
     public async Task<HttpResponseData> Run(
@@ -46,6 +52,24 @@ public class SubmitScore
             return bad;
         }
 
+        // ── Deadline gate ───────────────────────────────────────
+        try
+        {
+            var configResult = await _configTable.GetEntityAsync<ConfigEntity>("config", "deadline");
+            var deadlineStr = configResult.Value?.DeadlineUtc;
+            if (!string.IsNullOrEmpty(deadlineStr)
+                && DateTimeOffset.TryParse(deadlineStr, out var deadline)
+                && DateTimeOffset.UtcNow > deadline.AddSeconds(30))
+            {
+                var gone = req.CreateResponse(HttpStatusCode.Gone);
+                await gone.WriteAsJsonAsync(new { error = "Event is over — submissions are closed." });
+                return gone;
+            }
+        }
+        catch (RequestFailedException ex) when (ex.Status == 404)
+        {
+            // No deadline set — allow submission
+        }
 
         // ── Best-score-per-device: check existing ───────────────
         var trimmedName = body.Name.Trim();
@@ -70,6 +94,30 @@ public class SubmitScore
             {
                 existingByName = entity;
             }
+        }
+
+        // ── Name lock: if this device already has a name, reject different names
+        if (existingByDevice is not null
+            && !string.Equals(existingByDevice.PlayerName.Trim(), trimmedName,
+                              StringComparison.OrdinalIgnoreCase))
+        {
+            var locked = req.CreateResponse(HttpStatusCode.Conflict);
+            await locked.WriteAsJsonAsync(new
+            {
+                error = "Name already locked to this device",
+                lockedName = existingByDevice.PlayerName.Trim()
+            });
+            return locked;
+        }
+
+        // ── Name taken: if someone else already has this name on a different device
+        if (existingByName is not null
+            && !string.IsNullOrEmpty(deviceId)
+            && !string.Equals(existingByName.DeviceId, deviceId, StringComparison.Ordinal))
+        {
+            var taken = req.CreateResponse(HttpStatusCode.Conflict);
+            await taken.WriteAsJsonAsync(new { error = "This name is already taken by another player" });
+            return taken;
         }
 
         // Prefer device match, fall back to name match
