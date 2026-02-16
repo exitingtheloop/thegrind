@@ -10,8 +10,8 @@
 
 body {
   font-family: 'Quicksand', system-ui, -apple-system, 'Segoe UI', sans-serif;
-  background: #0f0f1a;
-  color: #eee;
+  background: #faf3e3;
+  color: #5a3e2b;
   overflow: hidden;
   -webkit-user-select: none;
   user-select: none;
@@ -53,17 +53,21 @@ h1, h2, h3, h4,
 }
 
 .tutorial-card {
-  background: #1a1a2e;
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
+  background-color: transparent;
   border-radius: 16px;
-  padding: 2rem 1.5rem;
-  max-width: 360px;
-  width: 100%;
+  padding: 2.5rem 1.5rem 2rem;
+  max-width: 340px;
+  width: 90%;
+  aspect-ratio: 1 / 1;
   text-align: center;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 0.75rem;
-  border: 2px solid #333;
+  justify-content: center;
+  gap: 0.5rem;
+  border: none;
 }
 
 .tutorial-icon {
@@ -72,15 +76,14 @@ h1, h2, h3, h4,
 
 .tutorial-title {
   font-size: 1.3rem;
-  background: linear-gradient(135deg, #f9d423, #ff4e50);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  color: #5a3e2b;
+  -webkit-text-fill-color: #5a3e2b;
+  background: none;
 }
 
 .tutorial-body {
-  font-size: 0.95rem;
-  color: #ccc;
+  font-size: 0.9rem;
+  color: #5a3e2b;
   line-height: 1.5;
 }
 
@@ -94,11 +97,11 @@ h1, h2, h3, h4,
   width: 8px;
   height: 8px;
   border-radius: 50%;
-  background: #333;
+  background: rgba(184, 134, 78, 0.3);
 }
 
 .dot.active {
-  background: #f9d423;
+  background: #e8636a;
 }
 
 .tutorial-actions {
@@ -121,21 +124,26 @@ h1, h2, h3, h4,
   overflow-y: auto;
 }
 
+.logo-gif {
+  width: 120px;
+  height: 120px;
+  object-fit: contain;
+}
+
 .game-title {
   font-size: 2.5rem;
-  background: linear-gradient(135deg, #f9d423, #ff4e50);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  color: #5a3e2b;
+  -webkit-text-fill-color: #5a3e2b;
+  background: none;
 }
 
 .subtitle {
-  color: #aaa;
+  color: #8b7355;
   font-size: 1rem;
 }
 
 .instructions {
-  color: #ccc;
+  color: #5a3e2b;
   font-size: 0.9rem;
   line-height: 1.5;
   max-width: 340px;
@@ -154,17 +162,21 @@ h1, h2, h3, h4,
 .name-entry input {
   padding: 0.75rem 1rem;
   border-radius: 12px;
-  border: 2px solid #333;
-  background: #1a1a2e;
-  color: #fff;
+  border: 2px solid #b8864e;
+  background: rgba(255, 255, 255, 0.6);
+  color: #5a3e2b;
   font-size: 1.1rem;
   text-align: center;
   outline: none;
   transition: border-color 0.2s;
 }
 
+.name-entry input::placeholder {
+  color: #8b7355;
+}
+
 .name-entry input:focus {
-  border-color: #f9d423;
+  border-color: #e8636a;
 }
 
 /* ─── Buttons ───────────────────────────────────────────────── */
@@ -189,14 +201,15 @@ h1, h2, h3, h4,
 }
 
 .btn-start {
-  background: linear-gradient(135deg, #f9d423, #ff4e50);
-  color: #111;
+  background: #e8636a;
+  color: #fff;
   font-size: 1.2rem;
 }
 
 .btn-secondary {
-  background: #2a2a3e;
-  color: #ccc;
+  background: rgba(184, 134, 78, 0.2);
+  color: #5a3e2b;
+  border: 1.5px solid #b8864e;
   font-size: 0.95rem;
 }
 
@@ -217,7 +230,8 @@ h1, h2, h3, h4,
 .leaderboard-panel {
   width: 100%;
   max-width: 340px;
-  background: #1a1a2e;
+  background: rgba(184, 134, 78, 0.12);
+  border: 1.5px solid rgba(184, 134, 78, 0.25);
   border-radius: 12px;
   padding: 1rem;
   margin-top: 0.5rem;
@@ -226,6 +240,7 @@ h1, h2, h3, h4,
 .leaderboard-panel h3 {
   margin-bottom: 0.5rem;
   font-size: 1rem;
+  color: #5a3e2b;
 }
 
 .lb-list {
@@ -238,7 +253,7 @@ h1, h2, h3, h4,
   align-items: center;
   gap: 0.5rem;
   padding: 0.35rem 0;
-  border-bottom: 1px solid #2a2a3e;
+  border-bottom: 1px solid rgba(184, 134, 78, 0.2);
 }
 
 .lb-list li:last-child {
@@ -257,11 +272,11 @@ h1, h2, h3, h4,
 
 .lb-score {
   font-weight: 700;
-  color: #f9d423;
+  color: #e8636a;
 }
 
 .empty {
-  color: #666;
+  color: #8b7355;
   font-size: 0.85rem;
 }
 
@@ -741,7 +756,7 @@ h1, h2, h3, h4,
 
 .lore-section {
   margin-bottom: 1rem;
-  background: rgba(184, 134, 78, 0.12);
+  background: rgba(252, 252, 252, 0.575);
   border: 1.5px solid rgba(184, 134, 78, 0.25);
   border-radius: 10px;
   padding: 0.6rem 0.8rem;
@@ -830,7 +845,7 @@ h1, h2, h3, h4,
 
 .name-warning {
   font-size: 0.75rem;
-  color: #ff9800;
+  color: #b8864e;
   text-align: center;
   margin: 0;
   line-height: 1.4;
@@ -838,35 +853,36 @@ h1, h2, h3, h4,
 
 .name-locked-msg {
   font-size: 0.8rem;
-  color: #81c784;
+  color: #7eb77f;
   text-align: center;
   margin: 0;
 }
 
 .name-entry input:disabled {
   opacity: 0.7;
-  border-color: #81c784;
-  color: #81c784;
+  border-color: #7eb77f;
+  color: #5a3e2b;
+  background: rgba(126, 183, 127, 0.1);
   cursor: not-allowed;
 }
 
 /* ─── Deadline banner ───────────────────────────────────────── */
 
 .deadline-banner {
-  background: rgba(249, 212, 35, 0.1);
-  border: 1px solid rgba(249, 212, 35, 0.3);
+  background: rgba(184, 134, 78, 0.12);
+  border: 1.5px solid rgba(184, 134, 78, 0.3);
   border-radius: 10px;
   padding: 0.5rem 1rem;
   font-size: 0.9rem;
-  color: #f9d423;
+  color: #5a3e2b;
   text-align: center;
 }
 
 /* ─── Event Over card ───────────────────────────────────────── */
 
 .event-over-card {
-  background: #1a1a2e;
-  border: 2px solid #ff4e50;
+  background: rgba(184, 134, 78, 0.12);
+  border: 2px solid #b8864e;
   border-radius: 16px;
   padding: 1.5rem;
   text-align: center;
@@ -876,26 +892,26 @@ h1, h2, h3, h4,
 
 .event-over-card h2 {
   font-size: 1.5rem;
-  color: #ff4e50;
+  color: #e8636a;
   margin-bottom: 0.75rem;
 }
 
 .event-over-name {
   font-size: 1.3rem;
-  color: #f9d423;
+  color: #5a3e2b;
   font-weight: 700;
   margin-bottom: 0.25rem;
 }
 
 .event-over-score {
   font-size: 1.1rem;
-  color: #eee;
+  color: #5a3e2b;
   margin-bottom: 0.5rem;
 }
 
 .event-over-msg {
   font-size: 0.9rem;
-  color: #aaa;
+  color: #8b7355;
   line-height: 1.5;
 }
 
@@ -1062,30 +1078,70 @@ h1, h2, h3, h4,
 /* ─── Leaderboard modal ─────────────────────────────────────── */
 
 .lb-modal {
-  background: #1a1a2e;
+  position: relative;
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
+  background-color: transparent;
+  border: none;
   border-radius: 16px;
-  padding: 1.5rem;
+  padding: 3.5rem 1.5rem 1.5rem;
   max-width: 360px;
-  width: 100%;
+  width: 90%;
+  aspect-ratio: 458 / 800;
   text-align: center;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 0.75rem;
-  border: 2px solid #f9d423;
+  justify-content: flex-start;
+  gap: 0.5rem;
+}
+
+.lb-modal-close {
+  position: absolute;
+  top: 25px;
+  right: 25px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  z-index: 10;
+}
+
+.lb-modal-close img {
+  width: 36px;
+  height: 36px;
+  object-fit: contain;
 }
 
 .lb-modal h2 {
-  font-size: 1.3rem;
-  background: linear-gradient(135deg, #f9d423, #ff4e50);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  font-size: 1.2rem;
+  color: #5a3e2b;
   margin: 0;
+  background: none;
+  -webkit-text-fill-color: #5a3e2b;
 }
 
 .lb-modal .leaderboard-panel {
   margin-top: 0;
+  background: transparent;
+  padding: 0.5rem 0;
+}
+
+.lb-modal .lb-list li {
+  border-bottom-color: rgba(184, 134, 78, 0.2);
+  color: #5a3e2b;
+}
+
+.lb-modal .lb-score {
+  color: #e8636a;
+}
+
+.lb-modal .rank {
+  color: #b8864e;
+}
+
+.lb-modal .empty {
+  color: #8b7355;
 }
 
 /* ─── Leader takeover alert ─────────────────────────────────── */

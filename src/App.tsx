@@ -26,6 +26,10 @@ import iconFamilySupport from './assets/family-support.png';
 import iconPaydayHit from './assets/payday-hit.png';
 import iconLockedIn from './assets/locked-in-mode.png';
 import iconTrophy from './assets/trophy.png';
+import lbModalBg from './assets/lb-modal.png';
+import modalCloseIcon from './assets/modal-close.png';
+import welcomeModalBg from './assets/welcome-modal.png';
+import thegrindLogo from './assets/thegrind-logo.gif';
 
 const ICON_MAP: Record<string, string> = {
   sideHustle: iconSideHustle,
@@ -104,7 +108,7 @@ function TutorialPopup({ onDismiss }: { onDismiss: () => void }) {
 
   return (
     <div className="overlay">
-      <div className="tutorial-card">
+      <div className="tutorial-card" style={{ backgroundImage: `url(${welcomeModalBg})` }}>
         <div className="tutorial-icon">{current.icon}</div>
         <h2 className="tutorial-title">{current.title}</h2>
         <p className="tutorial-body">{current.body}</p>
@@ -121,7 +125,7 @@ function TutorialPopup({ onDismiss }: { onDismiss: () => void }) {
           )}
           {isLast ? (
             <button className="btn btn-start" onClick={onDismiss}>
-              Let's Go! 🎉
+              Let's Go!
             </button>
           ) : (
             <button className="btn btn-start" onClick={() => setStep(step + 1)}>
@@ -264,8 +268,9 @@ function StartScreen() {
   if (eventOver) {
     return (
       <div className="screen start-screen">
-        <h1 className="game-title">💍 The Grind</h1>
-        <p className="subtitle">Wedding Edition — Gab & Nadine</p>
+        <img src={thegrindLogo} alt="The Grind" className="logo-gif" />
+        <h1 className="game-title">The Grind</h1>
+        <p className="subtitle">Chris & Nadine</p>
 
         <div className="event-over-card">
           <h2>⏰ Event Over!</h2>
@@ -297,8 +302,9 @@ function StartScreen() {
     <div className="screen start-screen">
       {!tutorialSeen && <TutorialPopup onDismiss={dismissTutorial} />}
 
-      <h1 className="game-title">💍 The Grind</h1>
-      <p className="subtitle">Wedding Edition — Gab & Nadine</p>
+      <img src={thegrindLogo} alt="The Grind" className="logo-gif" />
+      <h1 className="game-title">The Grind</h1>
+      <p className="subtitle">Chris & Nadine</p>
 
       {deadlineMs !== null && timeUntilDeadline && (
         <div className="deadline-banner">
@@ -506,12 +512,12 @@ function GameScreen() {
       {/* ── Leaderboard modal */}
       {showLB && (
         <div className="overlay" onClick={() => setShowLB(false)}>
-          <div className="lb-modal" onClick={(e) => e.stopPropagation()}>
+          <div className="lb-modal" onClick={(e) => e.stopPropagation()} style={{ backgroundImage: `url(${lbModalBg})` }}>
+            <button className="lb-modal-close" onClick={() => setShowLB(false)}>
+              <img src={modalCloseIcon} alt="Close" />
+            </button>
             <h2>🏆 Live Leaderboard</h2>
             <LeaderboardPanel entries={liveScores} title="" />
-            <button className="btn btn-secondary" onClick={() => setShowLB(false)}>
-              Close
-            </button>
           </div>
         </div>
       )}
