@@ -1182,13 +1182,22 @@ h1, h2, h3, h4,
   left: 0;
   right: 0;
   z-index: 90;
-  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
   padding: 0.6rem 1rem;
-  background: linear-gradient(135deg, #ff4e50, #f9d423);
-  color: #111;
+  background: #faf3e3;
+  color: #333;
   font-weight: 800;
   font-size: 0.95rem;
   animation: slideDown 0.3s ease-out, fadeOut 0.5s 4.5s ease-in forwards;
+}
+
+.leader-alert-fire {
+  height: 1.4em;
+  width: auto;
+  vertical-align: middle;
 }
 
 @keyframes slideDown {

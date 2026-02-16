@@ -37,6 +37,7 @@ import tapIdleGif from './assets/tap-idle.gif';
 import tappedImg from './assets/tapped.png';
 import confettiGif from './assets/confetti.gif';
 import tapRunGif from './assets/taptaptap.gif';
+import fireGif from './assets/fire.gif';
 
 const ICON_MAP: Record<string, string> = {
   sideHustle: iconSideHustle,
@@ -552,7 +553,9 @@ function GameScreen() {
       {/* ── Leader takeover alert */}
       {leaderAlert && (
         <div className="leader-alert">
+          <img src={fireGif} alt="" className="leader-alert-fire" />
           {leaderAlert}
+          <img src={fireGif} alt="" className="leader-alert-fire" />
         </div>
       )}
 
