@@ -4,6 +4,37 @@ import { useGameStore, generatorCost } from './game/state';
 import { useGameLoop } from './game/loop';
 import { GENERATORS, POWERUPS, MAX_OWNED, getFlavorText } from './game/config';
 import type { LeaderboardEntry } from './services/leaderboard';
+import topBgWood from './assets/top-bg-wood.png';
+import topBarFrame from './assets/top-bar-frame.png';
+import panelAth from './assets/panel-ath.png';
+import iconLamp from './assets/icon-lamp.png';
+import iconHeart from './assets/icon-heart.png';
+import nameTabsBg from './assets/name-tabs-bg.png';
+import upgradesTab from './assets/upgrades-tab.png';
+import powerupsTab from './assets/powerups-tab.png';
+import loreTab from './assets/lore-tab.png';
+import upgradesTabActive from './assets/upgrades-tab-active.png';
+import powerupsTabActive from './assets/powerups-tab-active.png';
+import loreTabActive from './assets/lore-tab-active.png';
+import lowerBg from './assets/lower-background.png';
+import perksSlab from './assets/perks-slab.png';
+import perkPricePanel from './assets/perk-price-panel.png';
+import iconSideHustle from './assets/side-hustle.png';
+import iconBudgetSystem from './assets/budget-system.png';
+import iconPromotionTrack from './assets/promotion-track.png';
+import iconFamilySupport from './assets/family-support.png';
+import iconPaydayHit from './assets/payday-hit.png';
+import iconLockedIn from './assets/locked-in-mode.png';
+import iconTrophy from './assets/trophy.png';
+
+const ICON_MAP: Record<string, string> = {
+  sideHustle: iconSideHustle,
+  budgetSystem: iconBudgetSystem,
+  promotionTrack: iconPromotionTrack,
+  familySupport: iconFamilySupport,
+  paydayHit: iconPaydayHit,
+  lockedIn: iconLockedIn,
+};
 import {
   fetchConfig,
   fetchMe,
@@ -485,17 +516,21 @@ function GameScreen() {
         </div>
       )}
 
-      {/* ── Top Bar: Timer + Currencies */}
-      <div className="top-bar">
-        <div className="timer">{fmtTime(timeLeft)}</div>
-        <div className="currency currency-center">
-          <span className="cur-label">⚡ MOMENTUM</span>
-          <span className="cur-value">{fmt(momentum)}</span>
-          <span className="cur-rate">{fmt(momentumPerSec)}/s · ×{tapMultiplier.toFixed(1)} tap</span>
-        </div>
-        <div className="currency ath-currency">
-          <span className="cur-label">🏆 ATH SCORE</span>
-          <span className="cur-value">{fmt(athScore)}</span>
+      {/* ── Top Bar: Wood panel */}
+      <div className="top-bar-wrapper" style={{ backgroundImage: `url(${topBgWood})` }}>
+        <img className="lamp-icon" src={iconLamp} alt="" />
+        <div className="top-bar" style={{ backgroundImage: `url(${topBarFrame})` }}>
+          <div className="timer">{fmtTime(timeLeft)}</div>
+          <div className="currency-center">
+            <span className="cur-label"><img className="icon-inline" src={iconHeart} alt="" /> MOMENTUM</span>
+            <span className="cur-value">{fmt(momentum)}</span>
+            <span className="cur-rate">{fmt(momentumPerSec)}/s · ×{tapMultiplier.toFixed(1)} tap</span>
+          </div>
+          <div className="ath-panel" style={{ backgroundImage: `url(${panelAth})` }}>
+            <span className="ath-label">ATH SCORE</span>
+            <span className="ath-sub">WEDDING FUND:</span>
+            <span className="ath-value">{fmt(athScore)} <img className="icon-inline" src={iconHeart} alt="" /></span>
+          </div>
         </div>
       </div>
 
@@ -522,46 +557,46 @@ function GameScreen() {
           <span className="tap-label">TAP!</span>
         </div>
         <button className="lb-btn" onClick={(e) => { e.stopPropagation(); setShowLB(true); }} title="Leaderboard">
-          🏆
+          <img src={iconTrophy} alt="Leaderboard" className="lb-btn-icon" />
         </button>
       </div>
 
-      {/* ── Player rank strip */}
-      <div className="player-strip">
-        <span className="player-strip-name">{playerName}</span>
-        {playerRank !== null && playerRank <= 5 ? (
-          <span className="player-strip-rank top5">🏆 #{playerRank}</span>
-        ) : playerRank !== null ? (
-          <span className="player-strip-rank">#{playerRank}</span>
-        ) : (
-          <span className="player-strip-rank">—</span>
-        )}
-      </div>
-
-      {/* ── Tab switcher */}
-      <div className="tab-bar">
-        <button
-          className={`tab-btn ${activeTab === 'upgrades' ? 'active' : ''}`}
-          onClick={() => setActiveTab('upgrades')}
-        >
-          📈 Upgrades
-        </button>
-        <button
-          className={`tab-btn ${activeTab === 'powerups' ? 'active' : ''}`}
-          onClick={() => setActiveTab('powerups')}
-        >
-          ⚡ Power‑ups
-        </button>
-        <button
-          className={`tab-btn ${activeTab === 'lore' ? 'active' : ''}`}
-          onClick={() => setActiveTab('lore')}
-        >
-          📜 Lore
-        </button>
+      {/* ── Player name + Tab switcher */}
+      <div className="name-tabs-wrapper" style={{ backgroundImage: `url(${nameTabsBg})` }}>
+        <div className="player-strip">
+          <span className="player-strip-name">“{playerName}”</span>
+          {playerRank !== null && playerRank <= 5 ? (
+            <span className="player-strip-rank top5">🏆 #{playerRank}</span>
+          ) : playerRank !== null ? (
+            <span className="player-strip-rank">#{playerRank}</span>
+          ) : (
+            <span className="player-strip-rank">—</span>
+          )}
+        </div>
+        <div className="tab-bar">
+          <button
+            className={`tab-btn ${activeTab === 'upgrades' ? 'active' : ''}`}
+            onClick={() => setActiveTab('upgrades')}
+          >
+            <img src={activeTab === 'upgrades' ? upgradesTabActive : upgradesTab} alt="Upgrades" />
+          </button>
+          <button
+            className={`tab-btn ${activeTab === 'powerups' ? 'active' : ''}`}
+            onClick={() => setActiveTab('powerups')}
+          >
+            <img src={activeTab === 'powerups' ? powerupsTabActive : powerupsTab} alt="Power-ups" />
+          </button>
+          <button
+            className={`tab-btn ${activeTab === 'lore' ? 'active' : ''}`}
+            onClick={() => setActiveTab('lore')}
+          >
+            <img src={activeTab === 'lore' ? loreTabActive : loreTab} alt="Lore" />
+          </button>
+        </div>
       </div>
 
       {/* ── Scrollable cards */}
-      <div className="card-area">
+      <div className="card-area" style={{ backgroundImage: `url(${lowerBg})` }}>
         {activeTab === 'upgrades' && (
           <div className="card-list">
             {GENERATORS.map((g) => {
@@ -578,8 +613,11 @@ function GameScreen() {
                   className={`card ${canAfford ? 'afford' : ''} ${maxed ? 'maxed' : ''}`}
                   onClick={() => buyGenerator(g.id)}
                   disabled={!canAfford}
+                  style={{ backgroundImage: `url(${perksSlab})` }}
                 >
-                  <div className="card-icon">{g.icon}</div>
+                  <div className="card-icon">
+                    {ICON_MAP[g.id] ? <img src={ICON_MAP[g.id]} alt={g.name} /> : g.icon}
+                  </div>
                   <div className="card-info">
                     <div className="card-name">
                       {g.name}
@@ -594,10 +632,9 @@ function GameScreen() {
                     {maxed ? (
                       <span className="card-maxed-label">MAX</span>
                     ) : (
-                      <>
+                      <div className="price-panel" style={{ backgroundImage: `url(${perkPricePanel})` }}>
                         <span className="card-cost">{fmt(cost)}</span>
-                        <span className="card-cost-label">⚡</span>
-                      </>
+                      </div>
                     )}
                   </div>
                 </button>
@@ -625,8 +662,11 @@ function GameScreen() {
                   className={`card ${isActive ? 'active-card' : ''} ${canAfford && !isActive ? 'afford' : ''}`}
                   onClick={() => activatePowerup(p.id)}
                   disabled={isActive || !canAfford}
+                  style={{ backgroundImage: `url(${perksSlab})` }}
                 >
-                  <div className="card-icon">{p.icon}</div>
+                  <div className="card-icon">
+                    {ICON_MAP[p.id] ? <img src={ICON_MAP[p.id]} alt={p.name} /> : p.icon}
+                  </div>
                   <div className="card-info">
                     <div className="card-name">
                       {p.name}
@@ -637,8 +677,9 @@ function GameScreen() {
                     <div className="card-desc">{p.description}</div>
                   </div>
                   <div className="card-price">
-                    <span className="card-cost">{fmt(p.cost)}</span>
-                    <span className="card-cost-label">⚡</span>
+                    <div className="price-panel" style={{ backgroundImage: `url(${perkPricePanel})` }}>
+                      <span className="card-cost">{fmt(p.cost)}</span>
+                    </div>
                   </div>
                 </button>
               );
