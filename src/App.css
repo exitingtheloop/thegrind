@@ -1209,3 +1209,27 @@ h1, h2, h3, h4,
   from { opacity: 1; }
   to { opacity: 0; }
 }
+
+/* ── BGM mute toggle ── */
+.bgm-toggle {
+  position: fixed;
+  bottom: 0.7rem;
+  right: 0.7rem;
+  z-index: 100;
+  width: 2.4rem;
+  height: 2.4rem;
+  border-radius: 50%;
+  border: 2px solid #b8864e;
+  background: rgba(250, 243, 227, 0.85);
+  font-size: 1.2rem;
+  line-height: 1;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+  transition: opacity 0.2s;
+}
+.bgm-toggle:active {
+  opacity: 0.7;
+}

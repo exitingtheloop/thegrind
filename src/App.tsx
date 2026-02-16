@@ -55,6 +55,8 @@ import {
   setLockedName,
   getDeviceId,
 } from './services/leaderboard';
+import { useBackgroundMusic } from './hooks/useBackgroundMusic';
+import { sfx } from './hooks/useSfx';
 
 // ─── Number Formatting ────────────────────────────────────────
 
@@ -75,7 +77,8 @@ function fmtTime(ms: number): string {
 }
 
 // ─── Tutorial Popup ────────────────────────────────────────────
-
+const TIER_3_THRESHOLD = 15000;
+const TIER_2_THRESHOLD = 1000;
 const TUTORIAL_STEPS = [
   {
     icon: '💍',
@@ -127,16 +130,16 @@ function TutorialPopup({ onDismiss }: { onDismiss: () => void }) {
         </div>
         <div className="tutorial-actions">
           {step > 0 && (
-            <button className="btn btn-secondary" onClick={() => setStep(step - 1)}>
+            <button className="btn btn-secondary" onClick={() => { setStep(step - 1); sfx.btnClick(); }}>
               ← Back
             </button>
           )}
           {isLast ? (
-            <button className="btn btn-start" onClick={onDismiss}>
+            <button className="btn btn-start" onClick={() => { onDismiss(); sfx.btnClick(); }}>
               Let's Go!
             </button>
           ) : (
-            <button className="btn btn-start" onClick={() => setStep(step + 1)}>
+            <button className="btn btn-start" onClick={() => { setStep(step + 1); sfx.btnClick(); }}>
               Next →
             </button>
           )}
@@ -351,7 +354,7 @@ function StartScreen() {
         )}
         <button
           className="btn btn-start"
-          onClick={handleStart}
+          onClick={() => { handleStart(); sfx.btnClick(); }}
           disabled={!name.trim()}
         >
           ▶ Start Run
@@ -360,7 +363,7 @@ function StartScreen() {
 
       <button
         className="btn btn-secondary tutorial-btn"
-        onClick={() => useGameStore.setState({ tutorialSeen: false })}
+        onClick={() => { useGameStore.setState({ tutorialSeen: false }); sfx.btnClick(); }}
       >
         📖 How to Play
       </button>
@@ -401,7 +404,7 @@ function RunCompleteScreen() {
 
       <LeaderboardPanel entries={leaderboard} title="🏆 Top 5" />
 
-      <button className="btn btn-start" onClick={handlePlayAgain}>
+      <button className="btn btn-start" onClick={() => { handlePlayAgain(); sfx.btnClick(); }}>
         Play Again
       </button>
     </div>
@@ -487,6 +490,7 @@ function GameScreen() {
   const tapTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const handleTap = useCallback(() => {
     tap();
+    sfx.tap();
     setTapFlash(true);
     setTimeout(() => setTapFlash(false), 50);
     // Show running gif while tapping, hide after 500ms idle
@@ -496,7 +500,7 @@ function GameScreen() {
   }, [tap]);
 
   // Tier change confetti (based on ATH — never goes down)
-  const currentTier = athScore >= 1000 ? 3 : athScore >= 500 ? 2 : 1;
+  const currentTier = athScore >= TIER_3_THRESHOLD ? 3 : athScore >= TIER_2_THRESHOLD ? 2 : 1;
   const prevTierRef = useRef(1);
   const [showConfetti, setShowConfetti] = useState(false);
   const [confettiKey, setConfettiKey] = useState(0);
@@ -531,6 +535,7 @@ function GameScreen() {
             if (prev !== null && prev !== newLeader && newLeader.toLowerCase() !== playerName.toLowerCase()) {
               // Someone else took #1!
               setLeaderAlert(`👑 ${newLeader} just took #1!`);
+              sfx.leaderAlert();
               setTimeout(() => setLeaderAlert(null), 5000);
             }
             return newLeader;
@@ -561,9 +566,9 @@ function GameScreen() {
 
       {/* ── Leaderboard modal */}
       {showLB && (
-        <div className="overlay" onClick={() => setShowLB(false)}>
+        <div className="overlay" onClick={() => { setShowLB(false); sfx.lbModal(); }}>
           <div className="lb-modal" onClick={(e) => e.stopPropagation()} style={{ backgroundImage: `url(${lbModalBg})` }}>
-            <button className="lb-modal-close" onClick={() => setShowLB(false)}>
+            <button className="lb-modal-close" onClick={() => { setShowLB(false); sfx.lbModal(); }}>
               <img src={modalCloseIcon} alt="Close" />
             </button>
             <h2>🏆 Live Leaderboard</h2>
@@ -594,7 +599,7 @@ function GameScreen() {
       <div
         className="tap-arena"
         onClick={handleTap}
-        style={{ backgroundImage: `url(${athScore >= 1000 ? bgTier3 : athScore >= 500 ? bgTier2 : bgTier1})` }}
+        style={{ backgroundImage: `url(${athScore >= TIER_3_THRESHOLD ? bgTier3 : athScore >= TIER_2_THRESHOLD ? bgTier2 : bgTier1})` }}
       >
         {showConfetti && (
           <img
@@ -627,7 +632,7 @@ function GameScreen() {
             draggable={false}
           />
         </div>
-        <button className="lb-btn" onClick={(e) => { e.stopPropagation(); setShowLB(true); }} title="Leaderboard">
+        <button className="lb-btn" onClick={(e) => { e.stopPropagation(); setShowLB(true); sfx.lbModal(); }} title="Leaderboard">
           <img src={iconTrophy} alt="Leaderboard" className="lb-btn-icon" />
         </button>
         {isTapping && (
@@ -655,19 +660,19 @@ function GameScreen() {
         <div className="tab-bar">
           <button
             className={`tab-btn ${activeTab === 'upgrades' ? 'active' : ''}`}
-            onClick={() => setActiveTab('upgrades')}
+            onClick={() => { setActiveTab('upgrades'); sfx.btnClick(); }}
           >
             <img src={activeTab === 'upgrades' ? upgradesTabActive : upgradesTab} alt="Upgrades" />
           </button>
           <button
             className={`tab-btn ${activeTab === 'powerups' ? 'active' : ''}`}
-            onClick={() => setActiveTab('powerups')}
+            onClick={() => { setActiveTab('powerups'); sfx.btnClick(); }}
           >
             <img src={activeTab === 'powerups' ? powerupsTabActive : powerupsTab} alt="Power-ups" />
           </button>
           <button
             className={`tab-btn ${activeTab === 'lore' ? 'active' : ''}`}
-            onClick={() => setActiveTab('lore')}
+            onClick={() => { setActiveTab('lore'); sfx.btnClick(); }}
           >
             <img src={activeTab === 'lore' ? loreTabActive : loreTab} alt="Lore" />
           </button>
@@ -690,7 +695,7 @@ function GameScreen() {
                 <button
                   key={g.id}
                   className={`card ${canAfford ? 'afford' : ''} ${maxed ? 'maxed' : ''}`}
-                  onClick={() => buyGenerator(g.id)}
+                  onClick={() => { buyGenerator(g.id); sfx.upgrade(); }}
                   disabled={!canAfford}
                   style={{ backgroundImage: `url(${perksSlab})` }}
                 >
@@ -739,7 +744,7 @@ function GameScreen() {
                 <button
                   key={p.id}
                   className={`card ${isActive ? 'active-card' : ''} ${canAfford && !isActive ? 'afford' : ''}`}
-                  onClick={() => activatePowerup(p.id)}
+                  onClick={() => { activatePowerup(p.id); sfx.powerup(); }}
                   disabled={isActive || !canAfford}
                   style={{ backgroundImage: `url(${perksSlab})` }}
                 >
@@ -1041,6 +1046,7 @@ function AdminPage() {
 export default function App() {
   const runStatus = useGameStore((s) => s.runStatus);
   const [hash, setHash] = useState(window.location.hash);
+  const { muted, toggleMute } = useBackgroundMusic();
 
   useEffect(() => {
     const onHash = () => setHash(window.location.hash);
@@ -1049,7 +1055,23 @@ export default function App() {
   }, []);
 
   if (hash === '#admin') return <AdminPage />;
-  if (runStatus === 'idle') return <StartScreen />;
-  if (runStatus === 'finished') return <RunCompleteScreen />;
-  return <GameScreen />;
+
+  const screen =
+    runStatus === 'idle' ? <StartScreen /> :
+    runStatus === 'finished' ? <RunCompleteScreen /> :
+    <GameScreen />;
+
+  return (
+    <>
+      {screen}
+      <button
+        className="bgm-toggle"
+        onClick={toggleMute}
+        aria-label={muted ? 'Unmute music' : 'Mute music'}
+        title={muted ? 'Unmute music' : 'Mute music'}
+      >
+        {muted ? '🔇' : '🔊'}
+      </button>
+    </>
+  );
 }
