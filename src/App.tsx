@@ -1,5 +1,5 @@
 // ─── App.tsx — Wedding Mini‑Game UI ────────────────────────────
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useGameStore, generatorCost } from './game/state';
 import { useGameLoop } from './game/loop';
 import { GENERATORS, POWERUPS, MAX_OWNED, getFlavorText } from './game/config';
@@ -30,6 +30,13 @@ import lbModalBg from './assets/lb-modal.png';
 import modalCloseIcon from './assets/modal-close.png';
 import welcomeModalBg from './assets/welcome-modal.png';
 import thegrindLogo from './assets/thegrind-logo.gif';
+import bgTier1 from './assets/bg-tier1.png';
+import bgTier2 from './assets/bg-tier2.png';
+import bgTier3 from './assets/bg-tier3.png';
+import tapIdleGif from './assets/tap-idle.gif';
+import tappedImg from './assets/tapped.png';
+import confettiGif from './assets/confetti.gif';
+import tapRunGif from './assets/taptaptap.gif';
 
 const ICON_MAP: Record<string, string> = {
   sideHustle: iconSideHustle,
@@ -72,32 +79,32 @@ const TUTORIAL_STEPS = [
   {
     icon: '💍',
     title: 'Welcome to The Grind!',
-    body: "Gab & Nadine's wedding mini‑game. You have 8 minutes to build up the biggest score. Top 3 win prizes!",
+    body: "Gab & Nadine's wedding mini‑game. You have 8 minutes to build up WEDDING FUNDS. Top 3 win prizes!",
   },
   {
-    icon: '💪',
-    title: 'Tap for Momentum',
-    body: 'Tap the big button in the center to earn MOMENTUM — that\'s your score! Tap as fast as you can.',
+    icon: '💵',
+    title: 'Tap for Wedding Funds',
+    body: 'Tap anywhere in the scene to earn WEDDING FUNDS. That\'s your score! Tap as fast as you can.',
   },
   {
     icon: '📈',
     title: 'Buy Upgrades',
-    body: 'Spend MOMENTUM on upgrades. Some give passive auto-taps, others multiply your tap power. Each upgrade maxes at 10 — explore them all!',
+    body: 'Spend WEDDING FUNDS on upgrades. Some give passive auto-taps, others multiply your tap power. Each upgrade maxes at 10. Explore them all!',
   },
   {
-    icon: '💵',
+    icon: '💪',
     title: 'Use Power‑ups',
-    body: 'Activate power‑ups for temporary boosts — double your taps or get auto‑taps. They cost MOMENTUM but pay off big!',
+    body: 'Activate power‑ups for temporary boosts: double your taps or get auto‑taps. They cost WEDDING FUNDS but pay off big!',
   },
   {
     icon: '🏆',
     title: 'All‑Time High Score',
-    body: 'Your score is your PEAK momentum — the highest it ever reaches during the run. Spending on upgrades lowers your current score, but helps you earn faster and reach a higher peak!',
+    body: 'Your score is your PEAK WEDDING FUNDS, the highest it ever reaches during the run. Spending on upgrades lowers your current score, but helps you earn faster and reach a higher peak!',
   },
   {
     icon: '🎲',
     title: 'Random Events',
-    body: 'Every 25–40 seconds, a life event pops up — bonuses or setbacks. Roll with it!',
+    body: 'Every 25–40 seconds, a life event pops up, bonuses or setbacks. Roll with it!',
   },
 ];
 
@@ -313,7 +320,7 @@ function StartScreen() {
       )}
 
       <p className="instructions">
-        Tap to earn <b>MOMENTUM</b>. Buy upgrades. Hit the highest peak!
+        Tap to earn <b>WEDDING FUNDS</b>. Buy upgrades. Hit the highest peak!
         <br />
         {deadlineMs !== null
           ? <>Everyone's run ends at the same time. Top 3 win prizes!</>
@@ -456,11 +463,32 @@ function GameScreen() {
 
   // Tap with visual feedback
   const [tapFlash, setTapFlash] = useState(false);
+  const [isTapping, setIsTapping] = useState(false);
+  const tapTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const handleTap = useCallback(() => {
     tap();
     setTapFlash(true);
-    setTimeout(() => setTapFlash(false), 100);
+    setTimeout(() => setTapFlash(false), 50);
+    // Show running gif while tapping, hide after 500ms idle
+    setIsTapping(true);
+    if (tapTimeoutRef.current) clearTimeout(tapTimeoutRef.current);
+    tapTimeoutRef.current = setTimeout(() => setIsTapping(false), 500);
   }, [tap]);
+
+  // Tier change confetti (based on ATH — never goes down)
+  const currentTier = athScore >= 1000 ? 3 : athScore >= 500 ? 2 : 1;
+  const prevTierRef = useRef(1);
+  const [showConfetti, setShowConfetti] = useState(false);
+  const [confettiKey, setConfettiKey] = useState(0);
+  useEffect(() => {
+    if (currentTier > prevTierRef.current) {
+      console.log('[CONFETTI] Tier up!', prevTierRef.current, '->', currentTier, 'ATH:', athScore);
+      setConfettiKey((k) => k + 1);
+      setShowConfetti(true);
+      setTimeout(() => setShowConfetti(false), 2000);
+    }
+    prevTierRef.current = currentTier;
+  }, [currentTier, athScore]);
 
   // ── Leaderboard modal + polling ──
   const [showLB, setShowLB] = useState(false);
@@ -528,43 +556,66 @@ function GameScreen() {
         <div className="top-bar" style={{ backgroundImage: `url(${topBarFrame})` }}>
           <div className="timer">{fmtTime(timeLeft)}</div>
           <div className="currency-center">
-            <span className="cur-label"><img className="icon-inline" src={iconHeart} alt="" /> MOMENTUM</span>
+            <span className="cur-label"><img className="icon-inline" src={iconHeart} alt="" /> WEDDING FUNDS</span>
             <span className="cur-value">{fmt(momentum)}</span>
             <span className="cur-rate">{fmt(momentumPerSec)}/s · ×{tapMultiplier.toFixed(1)} tap</span>
           </div>
           <div className="ath-panel" style={{ backgroundImage: `url(${panelAth})` }}>
             <span className="ath-label">ATH SCORE</span>
-            <span className="ath-sub">WEDDING FUND:</span>
+            <span className="ath-sub">KEEP IT UP!</span>
             <span className="ath-value">{fmt(athScore)} <img className="icon-inline" src={iconHeart} alt="" /></span>
           </div>
         </div>
       </div>
 
-      {/* ── Event ticker + leader position */}
-      {events.filter((e) => now < e.endsAt).length > 0 && (
-        <div className="event-ticker">
-          {events
-            .filter((e) => now < e.endsAt)
-            .map((e) => (
-              <span
-                key={e.eventId + e.endsAt}
-                className={`event-badge ${e.positive ? 'positive' : 'negative'}`}
-              >
-                {e.icon} {e.name}: {e.description} ({Math.ceil((e.endsAt - now) / 1000)}s)
-              </span>
-            ))}
-        </div>
-      )}
-
       {/* ── Center: Tap Arena */}
-      <div className="tap-arena" onClick={handleTap}>
+      <div
+        className="tap-arena"
+        onClick={handleTap}
+        style={{ backgroundImage: `url(${athScore >= 1000 ? bgTier3 : athScore >= 500 ? bgTier2 : bgTier1})` }}
+      >
+        {showConfetti && (
+          <img
+            key={confettiKey}
+            src={confettiGif}
+            alt=""
+            className="confetti-overlay"
+            draggable={false}
+          />
+        )}
+        {events.filter((e) => now < e.endsAt).length > 0 && (
+          <div className="event-ticker">
+            {events
+              .filter((e) => now < e.endsAt)
+              .map((e) => (
+                <span
+                  key={e.eventId + e.endsAt}
+                  className={`event-badge ${e.positive ? 'positive' : 'negative'}`}
+                >
+                  {e.icon} {e.name}: {e.description} ({Math.ceil((e.endsAt - now) / 1000)}s)
+                </span>
+              ))}
+          </div>
+        )}
         <div className={`tap-circle ${tapFlash ? 'flash' : ''}`}>
-          <span className="tap-emoji">💪</span>
-          <span className="tap-label">TAP!</span>
+          <img
+            src={tapIdleGif}
+            alt="Tap!"
+            className="tap-character"
+            draggable={false}
+          />
         </div>
         <button className="lb-btn" onClick={(e) => { e.stopPropagation(); setShowLB(true); }} title="Leaderboard">
           <img src={iconTrophy} alt="Leaderboard" className="lb-btn-icon" />
         </button>
+        {isTapping && (
+          <img
+            src={tapRunGif}
+            alt=""
+            className="tap-run-gif"
+            draggable={false}
+          />
+        )}
       </div>
 
       {/* ── Player name + Tab switcher */}
