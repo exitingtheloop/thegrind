@@ -918,7 +918,10 @@ function AdminPage() {
       const data = await res.json();
       setCurrentDeadline(data.deadlineUtc);
       setStatus('✅ Deadline set!');
-    } catch {
+      // Refresh from config endpoint as fallback
+      await fetchCurrentConfig();
+    } catch (err) {
+      console.error('[ADMIN] Failed to set deadline:', err);
       setStatus('❌ Failed to set deadline');
     }
   };
@@ -935,6 +938,8 @@ function AdminPage() {
       setStatus(`✅ Deleted ${data.deletedCount} scores`);
       setScores([]);
       setTotalSubmissions(0);
+      // Refresh config (reset sets deadline to past)
+      await fetchCurrentConfig();
     } catch {
       setStatus('❌ Failed to reset');
     }
