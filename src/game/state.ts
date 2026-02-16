@@ -149,6 +149,7 @@ export interface GameState {
   buyGenerator: (id: string) => void;
   activatePowerup: (id: string) => void;
   tick: (now: number) => void;
+  forceEndRun: () => void;
   refreshLeaderboard: () => Promise<void>;
   dismissTutorial: () => void;
 }
@@ -438,6 +439,18 @@ export const useGameStore = create<GameState>((set, get) => ({
       lastSubmitAt = now;
       submitScore(s.playerName, Math.floor(newAth)).catch(() => {});
     }
+  },
+
+  // ────────────────────────────────────────────── forceEndRun
+  forceEndRun: () => {
+    const s = get();
+    if (s.runStatus !== 'running') return;
+    // Submit final score silently, then mark finished
+    if (!s.submitted && s.athScore > 0) {
+      submitScore(s.playerName, Math.floor(s.athScore)).catch(() => {});
+    }
+    set({ runStatus: 'finished', submitted: true, lastTick: Date.now() });
+    try { localStorage.removeItem(SAVE_KEY); } catch { /* noop */ }
   },
 
   // ────────────────────────────────────────────── refreshLeaderboard

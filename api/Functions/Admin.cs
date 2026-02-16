@@ -121,7 +121,7 @@ public class Admin
         return response;
     }
 
-    // ── DELETE: wipe all scores ─────────────────────────────────
+    // ── DELETE: wipe all scores + set deadline to past ────────────
     private async Task<HttpResponseData> HandleReset(HttpRequestData req)
     {
         var deleted = 0;
@@ -132,8 +132,18 @@ public class Admin
             deleted++;
         }
 
+        // Set deadline to 1 minute ago so running devices can't submit
+        var pastDeadline = DateTimeOffset.UtcNow.AddMinutes(-1).ToString("o");
+        var configEntity = new ConfigEntity
+        {
+            PartitionKey = "config",
+            RowKey = "deadline",
+            DeadlineUtc = pastDeadline
+        };
+        await _configTable.UpsertEntityAsync(configEntity, TableUpdateMode.Replace);
+
         var response = req.CreateResponse(HttpStatusCode.OK);
-        await response.WriteAsJsonAsync(new { success = true, deletedCount = deleted });
+        await response.WriteAsJsonAsync(new { success = true, deletedCount = deleted, deadlineSetTo = pastDeadline });
         return response;
     }
 }

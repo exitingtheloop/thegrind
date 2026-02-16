@@ -451,6 +451,25 @@ function GameScreen() {
   const tap = useGameStore((s) => s.tap);
   const buyGenerator = useGameStore((s) => s.buyGenerator);
   const activatePowerup = useGameStore((s) => s.activatePowerup);
+  const forceEndRun = useGameStore((s) => s.forceEndRun);
+
+  // Poll server config every 30s — force-end run if deadline moved to past
+  useEffect(() => {
+    const checkDeadline = () => {
+      fetchConfig().then((cfg) => {
+        if (cfg.deadlineUtc) {
+          const serverNow = new Date(cfg.serverTimeUtc).getTime();
+          const deadline = new Date(cfg.deadlineUtc).getTime();
+          if (serverNow >= deadline) {
+            console.log('[DEADLINE] Server says event is over — force-ending run');
+            forceEndRun();
+          }
+        }
+      }).catch(() => {});
+    };
+    const id = setInterval(checkDeadline, 30_000);
+    return () => clearInterval(id);
+  }, [forceEndRun]);
 
   // Timer
   const [timeLeft, setTimeLeft] = useState(() => Math.max(0, runEndsAt - Date.now()));
