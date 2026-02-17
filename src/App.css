@@ -1182,13 +1182,22 @@ h1, h2, h3, h4,
   left: 0;
   right: 0;
   z-index: 90;
-  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
   padding: 0.6rem 1rem;
-  background: linear-gradient(135deg, #ff4e50, #f9d423);
-  color: #111;
+  background: #faf3e3;
+  color: #333;
   font-weight: 800;
   font-size: 0.95rem;
   animation: slideDown 0.3s ease-out, fadeOut 0.5s 4.5s ease-in forwards;
+}
+
+.leader-alert-fire {
+  height: 1.4em;
+  width: auto;
+  vertical-align: middle;
 }
 
 @keyframes slideDown {
@@ -1199,4 +1208,28 @@ h1, h2, h3, h4,
 @keyframes fadeOut {
   from { opacity: 1; }
   to { opacity: 0; }
+}
+
+/* ── BGM mute toggle ── */
+.bgm-toggle {
+  position: fixed;
+  bottom: 0.7rem;
+  right: 0.7rem;
+  z-index: 100;
+  width: 2.4rem;
+  height: 2.4rem;
+  border-radius: 50%;
+  border: 2px solid #b8864e;
+  background: rgba(250, 243, 227, 0.85);
+  font-size: 1.2rem;
+  line-height: 1;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+  transition: opacity 0.2s;
+}
+.bgm-toggle:active {
+  opacity: 0.7;
 }

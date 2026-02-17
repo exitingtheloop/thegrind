@@ -1,158 +1,121 @@
-# Happily Ever After: The Grind — Wedding Mini‑Game
+# The Grind — Wedding Mini-Game
 
-A fast, funny **8‑minute clicker/idle mini‑game** for wedding guests to play **before the reception** (e.g., during the grazing table). Guests compete for a **Top 5 leaderboard**; **Top 3** win extra wedding favors.
+A cozy **clicker mini-game** built for Chris & Nadine's wedding. Guests scan a QR code, tap to earn Wedding Funds, buy upgrades, and compete for the Top 5 leaderboard. Runs are time-boxed by a server-synced deadline set via an admin panel.
 
-Designed to be **fun in 5–10 minutes** — not something people keep playing during the reception.
-
----
-
-## What guests do
-
-- Scan a QR code
-- Enter a name
-- Press **Start Run**
-- Tap to generate **MOMENTUM**
-- Spend MOMENTUM on **Upgrades**
-- Convert some MOMENTUM into **TEAMWORK** to multiply all gains
-- Survive random life events (bills, taxes…)
-- At **0:00**, the run ends, score is submitted, leaderboard updates
+Built as a weekend hackathon project.
 
 ---
 
-## Game rules (wedding version)
+## How it works
 
-### Run timer
-- **One run = 8:00** (hard stop)
-- At **0:00**:
-  - Disable interactions
-  - Auto‑submit score
-  - Show results + Top 5 leaderboard
-
-### Currencies
-- **MOMENTUM** (score; big number)
-- **TEAMWORK** (multiplier currency)
-
-### Multiplier
-TEAMWORK multiplies *all* MOMENTUM gains.
-
-Recommended formula:
-- `MULT = 1 + TEAMWORK * 0.0001`
-- (+10,000 teamwork ≈ +1.0 multiplier)
-
-### Tap
-Tap generates MOMENTUM:
-- `tapGain = CPT * MULT * (powerup/event multipliers)`
-Base:
-- `CPT = 1`
-
-### Convert button
-- **Convert 10% MOMENTUM → TEAMWORK**
-- Strategic: converting early boosts long‑term gains.
+1. Guest scans the QR code → lands on the game
+2. Enters a name (locked after first run)
+3. Taps **Start Run** → timer starts (synced to server deadline)
+4. Tap to earn **Wedding Funds** (momentum)
+5. Buy **Generators** (auto-tap, tap multipliers) and **Power-ups** (burst boosts)
+6. Survive random **Life Events** (bills, bonuses, taxes)
+7. Your **All-Time High** momentum is your score
+8. When the deadline hits, scores are final — top 3 win prizes
 
 ---
 
-## Content (keep it tiny)
+## Game content
 
 ### Generators (4)
-Generators produce passive MOMENTUM/sec (**CPS**). Cost scales geometrically.
+| Generator | Type | Effect |
+|-----------|------|--------|
+| Side Hustle | Auto-tap | +0.25/s per unit |
+| Budget System | Auto-tap | +1.5/s per unit |
+| Promotion Track | Tap multiplier | +1.5× per unit |
+| Family Support | Tap multiplier | +2.5× per unit |
 
-| Generator | Fantasy | Base Cost | Base CPS |
-|---|---|---:|---:|
-| Side Hustle | “Sell stuff / freelance” | 25 | 0.25 |
-| Promotion Track | “Raise / upskill” | 150 | 1.5 |
-| Budget System | “Autopay / savings” | 500 | 6 |
-| Family Support | “Parents help / hand‑me‑downs” | 2500 | 25 |
+Max 10 each. Cost scales ×1.15 per owned.
 
-Scaling:
-- `cost = baseCost * 1.15^owned`
-
-### Power‑ups (2)
-Short bursts; icon‑driven.
-
-1) **Payday Hit**
-- Effect: `×2 tap gains` for **20s**
-
-2) **Locked‑In Mode**
-- Effect: `auto‑taps 10/sec` for **20s**
+### Power-ups (2)
+| Power-up | Effect | Duration |
+|----------|--------|----------|
+| Payday Hit | ×2 tap gains | 20s |
+| Locked-In Mode | +10 auto-taps/s | 20s |
 
 ### Events (4)
-Randomly trigger every **25–40 seconds**.
+Random events every 25-40 seconds:
+- **Unexpected Bonus** → +50% CPS for 15s
+- **Raise Approved** → +25% all gains for 20s
+- **Unexpected Bill** → −50% CPS for 15s
+- **Tax Surprise** → −25% all gains for 20s
 
-Positive:
-- **Unexpected Bonus** → `+50% CPS` for **15s**
-- **Raise Approved** → `+25% all gains` for **20s**
-
-Negative:
-- **Unexpected Bill** → `−50% CPS` for **15s**
-- **Tax Surprise** → `−25% all gains` for **20s**
-
----
-
-## Leaderboard (Top 5)
-
-### Requirements
-- Live Top 5
-- Auto‑submit at end of run
-- Optional **wedding code** required to submit
-
-### Suggested backend (fast)
-**Supabase** (simple Postgres table + RLS).
-
-Table: `scores`
-- `id` uuid (pk)
-- `name` text
-- `score` numeric
-- `created_at` timestamp default now()
-
-Client behavior:
-- Submit `{ name, score, wedding_code }`
-- Fetch Top 5: `ORDER BY score DESC LIMIT 5`
-
-Light guardrails (optional):
-- One submission per name every 2 minutes
-- Or “best score wins” per name
-- Wedding code prevents random spam
+### Tier backgrounds
+Visual progression based on All-Time High score:
+- **Tier 1** (0-499) — starter background
+- **Tier 2** (500-999) — upgraded + confetti burst
+- **Tier 3** (1000+) — final tier + confetti burst
 
 ---
 
-## Recommended tech stack (fastest for hackathon night)
+## Tech stack
 
-This stack is ideal for VS Code + Copilot/Claude and fast iteration:
-
-- **Vite + React + TypeScript**
-- **Zustand** state store
-- **Big number / Decimal** helper
-- **Vitest** for tests
-- **Tailwind** for layout polish (optional)
-
-You *can* change the stack, but this is the fastest path to a working demo.
+| Layer | Tech |
+|-------|------|
+| Frontend | Vite 6 + React 18 + TypeScript 5.6 |
+| State | Zustand 4.5 |
+| Backend | Azure Functions .NET 8 Isolated |
+| Database | Azure Table Storage |
+| Hosting | Azure Static Web Apps |
+| CI/CD | GitHub Actions |
+| Audio | HTML5 Audio — BGM + 6 SFX |
 
 ---
 
-## Local development
+## Development
 
 ```bash
-npm i
-npm run dev
-npm test
-npm run build
+npm install
+npm run dev              # Dev server (proxies /api to Azure)
+npx tsc --noEmit         # Type check
+npx vitest run           # 45 tests
+cd api && dotnet build   # Build backend
 ```
 
----
-
-## Wedding deployment checklist
-
-- Deploy to **Vercel** (or Netlify)
-- Print a QR code that opens the game
-- Put the **wedding code** on a small card near the QR code
-- Optional: run on a single iPad kiosk in “kiosk mode”
+### Local workflow
+The Vite dev server proxies `/api` calls to the production Azure Functions backend. Set a deadline via the admin panel (`/#admin`) on production for local to work in "game mode".
 
 ---
 
-## Tiny roadmap
+## Admin panel
 
-1) Reskin: MOMENTUM / TEAMWORK + labels
-2) Hard‑stop 8‑minute run + Start/End screens
-3) Reduce content: 4 generators, 2 powerups, 4 events
-4) Leaderboard Top 5 + submit on run end
-5) UI polish: Tap‑Titans style icon layout (minimal text)
+Access at `/#admin`. Requires admin key (query param auth).
+
+Features:
+- **Set deadline** — all players share the same end time
+- **View scores** — all submissions with device IDs
+- **Reset data** — wipes scores + expires deadline
+
+---
+
+## Backend endpoints
+
+| Route | Method | Purpose |
+|-------|--------|---------|
+| `/api/config` | GET | Server time + deadline |
+| `/api/scores` | GET | Top scores |
+| `/api/scores` | POST | Submit score (deadline-gated) |
+| `/api/me` | GET | Check if device already played |
+| `/api/manage` | GET/POST/DELETE | Admin operations (key auth) |
+
+---
+
+## Deployment
+
+Push to `main` → GitHub Actions auto-deploys:
+- Frontend → Azure Static Web Apps
+- Backend → Azure Functions (linked)
+
+---
+
+## Art & audio
+
+- **Visual style**: Cozy illustrated, warm parchment/wood theme
+- **Fonts**: Patrick Hand (headings) + Quicksand (body)
+- **BGM**: Looping background track, starts on first interaction
+- **SFX**: Tap, upgrade purchase, powerup purchase, button click, leaderboard modal, leader alert
+- **Assets**: 45+ custom illustrations, GIFs, and audio files in `src/assets/`
