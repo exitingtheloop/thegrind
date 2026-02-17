@@ -1,81 +1,87 @@
-# map.md — Repo Map + Where to Change What
+# map.md — Repo Map
 
-> File names may differ slightly. Avoid moving files; add new ones if needed.
+> Where to find things and where to make changes.
 
 ---
 
-## Core files (likely)
+## Project root
 
-- src/App.tsx
-  UI layout (tap arena, icons, name entry, timer, leaderboard)
-
-- src/game/state.ts
-  Store: numbers, actions, tick(), run timer, derived rates
-
-- src/game/economy.ts
-  Generator defs (4), cost scaling, teamwork multiplier formula
-
-- src/game/powerups.ts
-  Powerups defs (2), buffs
-
-- src/game/events.ts
-  Events defs (4), random scheduler (25–40s), ticker log
-
-- src/game/bignum.ts
-  Decimal helpers: d(), fmt()
-
-- src/game/loop.ts (or tick.ts)
-  requestAnimationFrame loop
-
-- src/services/leaderboard.ts (to add)
-  submitScore(), fetchTopScores()
-
-- src/services/save.ts
-  Save/load/offline (recommended to disable during wedding run)
-
-- src/**/*.test.ts
-  Vitest unit tests
+```
+thegrind/
+├── src/                    # Frontend source
+│   ├── App.tsx             # All UI components (~1080 lines)
+│   ├── App.css             # All styles, warm parchment theme (~1220 lines)
+│   ├── main.tsx            # React entry point
+│   ├── vite-env.d.ts       # Vite type declarations
+│   ├── game/
+│   │   ├── config.ts       # Game constants, generator/powerup/event defs
+│   │   ├── state.ts        # Zustand store — all game logic + actions
+│   │   └── loop.ts         # requestAnimationFrame game loop
+│   ├── hooks/
+│   │   ├── useBackgroundMusic.ts  # Singleton BGM with mute toggle
+│   │   └── useSfx.ts             # 6 sound effects (tap, upgrade, etc.)
+│   ├── services/
+│   │   └── leaderboard.ts  # API calls, device ID, name locking
+│   ├── assets/             # 45+ images, GIFs, and audio files
+│   └── __tests__/
+│       ├── state.test.ts        # 37 store/logic tests
+│       └── leaderboard.test.ts  # 8 API tests
+├── api/                    # Azure Functions .NET 8 backend
+│   ├── Functions/
+│   │   ├── Admin.cs        # GET/POST/DELETE /api/manage (key auth)
+│   │   ├── GetConfig.cs    # GET /api/config
+│   │   ├── GetMe.cs        # GET /api/me
+│   │   ├── GetScores.cs    # GET /api/scores
+│   │   └── SubmitScore.cs  # POST /api/scores (deadline gate)
+│   ├── Models/             # Table Storage entity models
+│   ├── Program.cs          # DI + startup
+│   ├── host.json           # Functions host config
+│   └── api.csproj          # .NET project file
+├── .github/workflows/      # CI/CD (GitHub Actions → Azure)
+├── vite.config.ts          # Dev server + /api proxy
+├── vitest.config.ts        # Test config
+├── index.html              # SPA entry
+└── *.md                    # Documentation
+```
 
 ---
 
 ## Common edits
 
-Change generator balance:
-- src/game/economy.ts
-
-Change events effects or timing:
-- src/game/events.ts
-
-Change powerups:
-- src/game/powerups.ts
-
-Change convert percentage:
-- src/game/state.ts
-
-Change run duration:
-- src/game/state.ts (or a config file)
-
-Add/update leaderboard:
-- src/services/leaderboard.ts
-- src/App.tsx
-
----
-
-## Wedding mode toggle (recommended)
-
-Create a config:
-- src/game/config.ts
-  - WEDDING_MODE = true
-  - RUN_DURATION_MS = 8 * 60 * 1000
-  - generator defs
-  - event defs
-
-Import config into store/modules.
+| Change | File(s) |
+|--------|---------|
+| Generator/powerup balance | `src/game/config.ts` |
+| Game logic or new actions | `src/game/state.ts` |
+| Event timing or effects | `src/game/config.ts` |
+| Run duration (fallback) | `src/game/config.ts` (`RUN_DURATION_MS`) |
+| UI layout or new screens | `src/App.tsx` |
+| Styling | `src/App.css` |
+| API calls | `src/services/leaderboard.ts` |
+| Backend endpoints | `api/Functions/*.cs` |
+| Sound effects | `src/hooks/useSfx.ts` + add `.mp3` to `src/assets/` |
+| Background music | `src/hooks/useBackgroundMusic.ts` |
+| Art assets | Add to `src/assets/`, import in `App.tsx` |
 
 ---
 
 ## Commands
 
-- npm run dev
-- npm test
-- npm run build
+```bash
+npm run dev              # Vite dev server (port 5173)
+npx tsc --noEmit         # Type check
+npx vitest run           # Run all 45 tests
+cd api && dotnet build   # Build .NET backend
+```
+
+---
+
+## Key URLs
+
+| URL | Purpose |
+|-----|---------|
+| `/` | Game (StartScreen → GameScreen → RunCompleteScreen) |
+| `/#admin` | Admin panel (set deadline, view/reset scores) |
+| `/api/config` | Server time + deadline |
+| `/api/scores` | Leaderboard |
+| `/api/me` | Device check |
+| `/api/manage` | Admin operations (key auth) |

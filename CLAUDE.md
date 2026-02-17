@@ -1,130 +1,91 @@
-# CLAUDE.md — Assistant Guide (GitHub Copilot / Claude Opus)
+# CLAUDE.md — Assistant Guide
 
-This file tells an AI assistant how to work on this repo without breaking things.
-
----
-
-## 1) Project goal
-
-Build a **wedding mini‑game** that is:
-- fun for 5–10 minutes
-- ends automatically at 8:00
-- submits a score
-- shows Top 5 leaderboard
-- does NOT encourage playing during the reception
-
-Theme: Gab + Nadine “grinding through married life” — humorous and relatable.
+This file tells an AI assistant how to work on this repo.
 
 ---
 
-## 2) Non‑negotiables
+## 1) Project overview
+
+**The Grind** — a wedding clicker mini-game for Chris & Nadine's wedding.
+Guests scan a QR code, tap to earn Wedding Funds, buy upgrades, and compete
+for the Top 5 leaderboard. Runs are time-boxed by a server-synced deadline
+set via an admin panel.
+
+---
+
+## 2) Tech stack
+
+| Layer | Tech |
+|-------|------|
+| Frontend | Vite 6 + React 18 + TypeScript 5.6 |
+| State | Zustand 4.5 (single store in `src/game/state.ts`) |
+| Backend | Azure Functions .NET 8 Isolated |
+| Database | Azure Table Storage (`scores` + `config` tables) |
+| Hosting | Azure Static Web Apps + Azure Functions |
+| CI/CD | GitHub Actions (auto-deploy on push to main) |
+| Audio | HTML5 Audio — BGM loop + 6 SFX |
+| Art style | Cozy illustrated, warm parchment/wood theme |
+| Fonts | Patrick Hand (headings) + Quicksand (body) |
+
+---
+
+## 3) Non-negotiables
 
 - Keep changes small and reviewable.
-- Do not rewrite the whole app or refactor the engine.
-- Preserve strict TypeScript.
-- Keep tests passing; add tests for new logic.
-- UI must be icon‑first and minimal text.
+- Preserve strict TypeScript (`npx tsc --noEmit`).
+- Keep tests passing (`npx vitest run` — 45 tests).
+- Logic belongs in the store; UI calls actions only.
+- UI is icon-first with minimal text.
 
 ---
 
-## 3) Wedding version scope (keep it simple)
+## 4) Key mechanics
 
-### Must have
-1) Run timer (8 minutes)
-   - Start Run button
-   - Hard stop at 0:00
-   - Auto‑submit score
-
-2) MOMENTUM + TEAMWORK
-
-3) Convert: Convert 10% MOMENTUM → TEAMWORK
-
-4) 4 Generators, 2 Power‑ups, 4 Events
-
-5) Leaderboard Top 5 (submit at run end)
-
-### Nice to have (only if time)
-- Simple anti‑spam guardrails
-- Share score (copy text)
-- 2 attempts max
-
-### Out of scope (wedding version)
-- Prestige / long‑term progression
-- Huge content trees
-- Complex auth or wallets
+- **MOMENTUM** (Wedding Funds) — primary currency, earned by tapping
+- **ATH Score** (All-Time High) — peak momentum during a run, used as final score
+- **Generators** — 4 types (auto-tap or tap-multiplier), max 10 each, cost scales ×1.15
+- **Power-ups** — 2 types (Payday Hit ×2 tap, Locked-In 10/s auto-tap), 20s duration
+- **Events** — 4 random events every 25-40s (±50% CPS or ±25% all gains)
+- **Tier backgrounds** — change at ATH 500 / 1000 with confetti on upgrade
 
 ---
 
-## 4) Development approach
+## 5) Backend endpoints
 
-1) Add/adjust config objects first (single source of truth).
-2) Implement logic in the store and unit test it.
-3) Wire UI with minimal text.
-4) Run `npm test` before committing.
-
-Logic belongs in the store; UI calls actions only.
-
----
-
-## 5) Suggested “wedding mode” strategy
-
-Add a single flag/config:
-- `WEDDING_MODE = true`
-
-In wedding mode:
-- Disable prestige UI entirely
-- Disable offline progress (or ignore saved state during a run)
-- Require Start Run to begin timer/scoring
-- Reset state at Start Run so everyone starts fair
+| Route | Method | Purpose |
+|-------|--------|---------|
+| `/api/config` | GET | Server time + deadline |
+| `/api/scores` | GET | Top scores (limit param) |
+| `/api/scores` | POST | Submit score (deadline gate + 30s grace) |
+| `/api/me` | GET | Check if device already played |
+| `/api/manage` | GET | Admin: list all scores (key auth) |
+| `/api/manage` | POST | Admin: set deadline (key auth) |
+| `/api/manage` | DELETE | Admin: reset all data + expire deadline (key auth) |
 
 ---
 
-## 6) Leaderboard integration
+## 6) Development
 
-Prefer Supabase:
-- Create `src/services/leaderboard.ts`
-- Env vars:
-  - `VITE_SUPABASE_URL`
-  - `VITE_SUPABASE_ANON_KEY`
-  - `VITE_WEDDING_CODE` (optional)
+```bash
+npm run dev          # Vite dev server (proxies /api to Azure)
+npx tsc --noEmit     # Type check
+npx vitest run       # Run tests
+cd api && dotnet build  # Build backend
+```
 
-API:
-- `submitScore(name, score, weddingCode)`
-- `fetchTopScores(limit=5)`
-
-No complex auth. No personal data beyond a display name.
+Vite proxy in `vite.config.ts` forwards `/api` to production Azure Functions.
+Set deadline on production admin (`/#admin`) for local to also work in "game mode".
 
 ---
 
-## 7) UI goals (Tap‑Titans style)
+## 7) File conventions
 
-- Big center tap arena
-- Left: power‑up icons
-- Right: generator icons
-- Bottom: convert + leaderboard
-- Minimal labels (tooltips ok)
-
-Active state: glow ring; disabled: dim.
-
----
-
-## 8) Testing expectations
-
-Add tests for:
-- Start/end of run timer
-- Auto submit at 0:00
-- Convert rule
-- Event scheduling (25–40s range)
-- Wedding mode resets state on Start Run
-- Leaderboard calls mocked
-
-Keep time deterministic (inject now/seed where needed).
-
----
-
-## 9) Output expectations
-
-When producing changes:
-- Provide a clear diff or full file replacements
-- Explain what changed and why
-- Confirm tests still pass
+- `src/game/config.ts` — single source of truth for game constants
+- `src/game/state.ts` — Zustand store with all game logic + actions
+- `src/game/loop.ts` — requestAnimationFrame game loop
+- `src/App.tsx` — all UI components (~1080 lines)
+- `src/App.css` — all styles, warm parchment theme (~1220 lines)
+- `src/hooks/` — useBackgroundMusic, useSfx
+- `src/services/leaderboard.ts` — API calls, device ID, name locking
+- `src/assets/` — 45+ art/audio assets
+- `api/Functions/` — 5 Azure Functions (.NET 8)

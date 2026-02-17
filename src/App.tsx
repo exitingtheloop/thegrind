@@ -34,7 +34,6 @@ import bgTier1 from './assets/bg-tier1.png';
 import bgTier2 from './assets/bg-tier2.png';
 import bgTier3 from './assets/bg-tier3.png';
 import tapIdleGif from './assets/tap-idle.gif';
-import tappedImg from './assets/tapped.png';
 import confettiGif from './assets/confetti.gif';
 import tapRunGif from './assets/taptaptap.gif';
 import fireGif from './assets/fire.gif';

@@ -23,7 +23,7 @@ let tapAudio: HTMLAudioElement | null = null;
 function playTap() {
   if (!tapAudio) {
     tapAudio = new Audio(sfxTap);
-    tapAudio.volume = 0.2;
+    tapAudio.volume = 0.7;
   }
   tapAudio.currentTime = 0;
   tapAudio.play().catch(() => {});
