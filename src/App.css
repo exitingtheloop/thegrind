@@ -10,7 +10,7 @@
 
 body {
   font-family: 'Quicksand', system-ui, -apple-system, 'Segoe UI', sans-serif;
-  background: #faf3e3;
+  background: #5a3e2b;
   color: #5a3e2b;
   overflow: hidden;
   -webkit-user-select: none;
@@ -33,10 +33,14 @@ h1, h2, h3, h4,
 }
 
 #root {
+  max-width: 430px;
   width: 100vw;
   height: 100dvh;
+  margin: 0 auto;
   display: flex;
   flex-direction: column;
+  background: #faf3e3;
+  position: relative;
 }
 
 /* ─── Overlay (tutorial, modals) ────────────────────────────── */
